@@ -1,0 +1,51 @@
+# Salesforce-specific .gitignore
+# Customize as needed for your specific Salesforce project.
+
+# Salesforce metadata files to exclude
+*.dup-meta.xml
+
+# Scratch org-specific files
+.sfdx/
+
+# VS Code files
+.vscode/
+
+# Node artifact files (if using tools like Salesforce CLI plugins or automation scripts)
+node_modules/
+
+# Deployment and packaging artifacts
+*.zip
+*.jar
+*.tmp
+
+# IDE-specific files
+.idea/
+.project
+.classpath
+*.iml
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Test results and coverage
+*.testResults
+*.coverage
+
+# LWC and Static Resources compiled artifacts (if applicable)
+force-app/main/default/staticresources/**/*.resource-meta.xml
+force-app/main/default/staticresources/**/dist/
+
+# Package metadata cache (for unlocked packages)
+.sf/*
+
+# LWC Jest coverage reports
+coverage/
