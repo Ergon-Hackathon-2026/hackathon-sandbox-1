@@ -12,7 +12,7 @@ Click [here](https://scribehow.com/viewer/Open_Agentforce_Vibes_IDE__fUjVOEdJTXa
 
 The full problem statement is located at:
 
-- `docs/CHALLENGE.md`
+- `docs/CHALLENGE.md'
 
 The official Word document (source of truth) is linked at the top of that file.
 
@@ -45,7 +45,7 @@ This file contains curated platform documentation and ramp-up materials.
 
 The sample data used to populate the `UsefulQuery__c` object can be found here:
 
-[UsefulQuery Seed Data (Excel)](https://ergonus.sharepoint.com/:x:/s/ErgonsSalesForceSite/IQB_fsP0NFekRq4WVwMQmSu9AXJ9tvZ2qcS-K2QqFZY2QIE?e=AAfaaI)
+[UsefulQuery Seed Data (Excel)](https://ergonus.sharepoint.com/:x:/s/ErgonsSalesForceSite/IQB_fsP0NFekRq4WVwMQmSu9ARY6XH6_gpQ3rzt2c-2PwKg?e=sL2dP6&wdExp=TEAMS-TREATMENT&web=1)
 
 You may use this file to manually create records, import via Salesforce Inspector, or load using Data Loader.
 
