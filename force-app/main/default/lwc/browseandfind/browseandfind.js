@@ -11,6 +11,7 @@ import QUERY_SAVED_CHANNEL  from '@salesforce/messageChannel/QuerySaved__c';
 import deleteQuery          from '@salesforce/apex/QueryLibraryController.deleteQuery';
 import { updateRecord }     from 'lightning/uiRecordApi';
 import previewQuery         from '@salesforce/apex/SoqlValidator.previewQuery';
+import trackUsage from '@salesforce/apex/QueryLibraryController.trackUsage';
 
 // how long to wait after the user stops typing before searching
 const DEBOUNCE_DELAY = 300;
@@ -260,17 +261,31 @@ export default class BrowseAndFind extends NavigationMixin(LightningElement) {
             this._copyToClipboard(this.selectedRecord.SOQLField__c || '');
         }, 1000);
     } else if (name === 'edit') {
-        this.selectedRecord = { ...row };
-        this.loadFullRecord(row.Id);
-        setTimeout(() => {
-            this.handleEdit();
-        }, 1000);
+        this.selectedRecord      = { ...row };
+        this.editIsValidated     = false;
+        this.editValidationError = '';
+        this.isEditModalOpen     = false;
+
+        getQueryById({ recordId: row.Id })
+            .then(data => {
+                this.editRecord = {
+                    Id:                  data.Id,
+                    Name:                data.Name,
+                    DescriptionField__c: data.DescriptionField__c,
+                    SObjectAPIName__c:   data.SObjectAPIName__c,
+                    SOQLField__c:        data.SOQLField__c
+                };
+                this.isEditModalOpen = true;
+            })
+            .catch(error => {
+                this._toast('Error', this._extractError(error), 'error');
+        });
     } else if (name === 'delete') {
         this.selectedRecord = { ...row };
         this.showDeleteConfirm = true;
         this.isModalOpen = true;
+        }
     }
-}
 
     // opens the view modal and loads the full record
     openModal(row) {
@@ -280,22 +295,28 @@ export default class BrowseAndFind extends NavigationMixin(LightningElement) {
         this.showValidation    = false;
         this.showDeleteConfirm = false;
         this.loadFullRecord(row.Id);
+        trackUsage({ recordId: row.Id });
     }
 
     // closes the view modal and refreshes the table
     closeModal() {
-        this.isModalOpen       = false;
-        this.selectedRecord    = {};
-        this.validationResult  = null;
-        this.showValidation    = false;
-        this.showDeleteConfirm = false;
-        this.loadQueries();
+    this.isModalOpen       = false;
+    this.selectedRecord    = {};
+    this.validationResult  = null;
+    this.showValidation    = false;
+    this.showDeleteConfirm = false;
+    this.isPreviewOpen     = false;
+    this.previewRows       = [];
+    this.previewColumns    = [];
+    this.previewError      = '';
+    this.loadQueries();
     }
 
     // copies the soql text to the clipboard
     copySoql() {
         this._copyToClipboard(this.selectedRecord.SOQLField__c || '');
         this._toast('Copied', 'SOQL copied to clipboard.', 'success');
+        trackUsage({ recordId: this.selectedRecord.Id });
     }
 
     // handles changes to any field in the edit modal

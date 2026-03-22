@@ -27,53 +27,42 @@ public with sharing class SoqlValidator {
 
     // checks if a soql query is safe and valid before letting the user save it
     @AuraEnabled
-    public static ValidationResult validateSoql(String queryString) {
-
-        // reject blank queries right away
-        if (String.isBlank(queryString)) {
-            return new ValidationResult(false, 'Query cannot be blank.', null);
+public static ValidationResult validateSoql(String queryString) {
+    if (String.isBlank(queryString)) {
+        return new ValidationResult(false, 'Query cannot be blank.', null);
+    }
+    String trimmed = queryString.trim();
+    if (!trimmed.toUpperCase().startsWith('SELECT')) {
+        return new ValidationResult(false, 'Query must begin with SELECT.', null);
+    }
+    String upperQuery = trimmed.toUpperCase();
+    for (String pattern : INVALIDATED_FIELDS) {
+        if (upperQuery.contains(pattern)) {
+            return new ValidationResult(false, 'Query cannot contain: ' + pattern + ', Remove and try again.', null);
         }
+    }
 
-        String trimmed = queryString.trim();
+    // add limit if missing, cap if present
+    String safeQuery;
+    Pattern limitPattern = Pattern.compile('(?i)\\bLIMIT\\s+(\\d+)');
+    Matcher limitMatcher = limitPattern.matcher(trimmed);
+    if (limitMatcher.find()) {
+        Integer existingLimit = Integer.valueOf(limitMatcher.group(1));
+        Integer capLimit = Math.min(existingLimit, VALIDATION_LIMIT);
+        safeQuery = trimmed.replaceAll('(?i)\\bLIMIT\\s+\\d+', 'LIMIT ' + capLimit);
+    } else {
+        // no limit found, add one automatically
+        safeQuery = trimmed + ' LIMIT ' + VALIDATION_LIMIT;
+    }
 
-        // reject anything that doesnt start with select
-        if (!trimmed.toUpperCase().startsWith('SELECT')) {
-            return new ValidationResult(false, 'Query must begin with SELECT.', null);
-        }
-
-        // check for any blocked clauses and reject if found
-        String upperQuery = trimmed.toUpperCase();
-        for (String pattern : INVALIDATED_FIELDS) {
-            if (upperQuery.contains(pattern)) {
-                return new ValidationResult(false, 'Query cannot contain: ' + pattern + ', Remove and try again.', null);
-            }
-        }
-
-        // look for a limit clause in the query
-        String safeQuery;
-        Pattern limitPattern = Pattern.compile('(?i)\\bLIMIT\\s+(\\d+)');
-        Matcher limitMatcher = limitPattern.matcher(trimmed);
-
-        if (limitMatcher.find()) {
-            // if there is a limit, cap it at our max so we dont pull too many rows
-            Integer existingLimit = Integer.valueOf(limitMatcher.group(1));
-            Integer capLimit = Math.min(existingLimit, VALIDATION_LIMIT);
-            safeQuery = trimmed.replaceAll('(?i)\\bLIMIT\\s+\\d+', 'LIMIT ' + capLimit);
-        } else {
-            // reject queries that have no limit at all
-            return new ValidationResult(false, 'Query must include a LIMIT clause.', null);
-        }
-
-        // actually run the query to check for any syntax errors
-        // if it throws an error we catch it and send back the message
-        try {
-            List<SObject> results = Database.query(safeQuery);
-            return new ValidationResult(true, 'Query is valid. Returned ' + results.size() + ' records (capped at ' + VALIDATION_LIMIT + ').', safeQuery);
-        } catch (QueryException e) {
-            return new ValidationResult(false, 'SOQL Error: ' + e.getMessage(), null);
-        } catch (Exception e) {
-            return new ValidationResult(false, 'Unexpected Error: ' + e.getMessage(), null);
-        }
+    try {
+        List<SObject> results = Database.query(safeQuery);
+        return new ValidationResult(true, 'Query is valid. Returned ' + results.size() + ' records (capped at ' + VALIDATION_LIMIT + ').', safeQuery);
+    } catch (QueryException e) {
+        return new ValidationResult(false, 'SOQL Error: ' + e.getMessage(), null);
+    } catch (Exception e) {
+        return new ValidationResult(false, 'Unexpected Error: ' + e.getMessage(), null);
+    }
     }
 
     // saves a new query record to the database
@@ -100,33 +89,32 @@ public with sharing class SoqlValidator {
         names.sort();
         return names;
     }
+
 @AuraEnabled
 public static List<SObject> previewQuery(String queryString) {
     if (String.isBlank(queryString)) {
         throw new AuraHandledException('Query cannot be blank.');
     }
     String trimmed = queryString.trim();
-    
-    // reuse same safety checks
     if (!trimmed.toUpperCase().startsWith('SELECT')) {
         throw new AuraHandledException('Query must begin with SELECT.');
     }
-    
-    // cap at 5 rows for safety
+
+    // add limit if missing, cap if present
+    String safeQuery;
     Pattern limitPattern = Pattern.compile('(?i)\\bLIMIT\\s+(\\d+)');
     Matcher limitMatcher = limitPattern.matcher(trimmed);
-    String safeQuery;
     if (limitMatcher.find()) {
         Integer capLimit = Math.min(Integer.valueOf(limitMatcher.group(1)), 5);
         safeQuery = trimmed.replaceAll('(?i)\\bLIMIT\\s+\\d+', 'LIMIT ' + capLimit);
     } else {
-        throw new AuraHandledException('Query must include a LIMIT clause.');
+        safeQuery = trimmed + ' LIMIT 5';
     }
-    
+
     try {
         return Database.query(safeQuery);
     } catch (Exception e) {
         throw new AuraHandledException('SOQL Error: ' + e.getMessage());
     }
-}
+    }
 }

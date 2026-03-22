@@ -26,6 +26,8 @@
                         onchange={handleSObjectChange}>
                     </lightning-combobox>
                 </div>
+
+                <!-- Rows per page -->
                 <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12">
                     <lightning-combobox
                         label="Rows per page"
@@ -34,8 +36,9 @@
                         onchange={handlePageSizeChange}>
                     </lightning-combobox>
                 </div>
+
                 <!-- Clear Filters -->
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-align-bottom">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12 slds-align-bottom">
                     <template if:true={hasActiveFilters}>
                         <div class="slds-m-top_large">
                             <lightning-button
@@ -92,7 +95,8 @@
             <template if:false={isLoading}>
                 <template if:false={hasError}>
                     <template if:true={hasRows}>
-            <!-- flat table view -->
+
+                        <!-- flat table view -->
                         <template if:false={isGroupedView}>
                             <lightning-datatable
                                 key-field="Id"
@@ -105,6 +109,7 @@
                                 hide-checkbox-column>
                             </lightning-datatable>
                         </template>
+
                         <!-- grouped view -->
                         <template if:true={isGroupedView}>
                             <template for:each={groupedRecords} for:item="group">
@@ -146,6 +151,7 @@
                                 </lightning-button-icon>
                             </div>
                         </template>
+
                     </template>
 
                     <!-- Empty State -->
@@ -219,6 +225,30 @@
                             </div>
                         </template>
                     </div>
+
+                    <!-- Inline Preview Results -->
+                    <template if:true={isPreviewOpen}>
+                        <div class="slds-m-bottom_medium">
+                            <p class="slds-text-title_caps slds-m-bottom_x-small">Preview Results (first 5 rows)</p>
+                            <template if:true={isPreviewLoading}>
+                                <div class="slds-is-relative" style="height:4rem;">
+                                    <lightning-spinner alternative-text="Loading preview" size="small">
+                                    </lightning-spinner>
+                                </div>
+                            </template>
+                            <template if:true={previewError}>
+                                <p class="slds-text-color_error">{previewError}</p>
+                            </template>
+                            <template if:true={hasPreviewRows}>
+                                <lightning-datatable
+                                    key-field="_rowIndex"
+                                    data={previewRows}
+                                    columns={previewColumns}
+                                    hide-checkbox-column>
+                                </lightning-datatable>
+                            </template>
+                        </div>
+                    </template>
 
                     <!-- Validation Result -->
                     <template if:true={showValidation}>
@@ -312,147 +342,122 @@
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
+
     <!-- Edit Modal -->
-<template if:true={isEditModalOpen}>
-    <section role="dialog" tabindex="-1" aria-modal="true"
-             class="slds-modal slds-fade-in-open">
-        <div class="slds-modal__container">
+    <template if:true={isEditModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true"
+                 class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
 
-            <header class="slds-modal__header">
-                <lightning-button-icon
-                    icon-name="utility:close"
-                    alternative-text="Close"
-                    size="large"
-                    class="slds-modal__close"
-                    onclick={handleEditCancel}>
-                </lightning-button-icon>
-                <h2 class="slds-modal__title">Edit Query</h2>
-            </header>
+                <header class="slds-modal__header">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        size="large"
+                        class="slds-modal__close"
+                        onclick={handleEditCancel}>
+                    </lightning-button-icon>
+                    <h2 class="slds-modal__title">Edit Query</h2>
+                </header>
 
-            <div class="slds-modal__content slds-p-around_medium">
-                <lightning-input
-                    label="Name"
-                    value={editRecord.Name}
-                    data-field="Name"
-                    onchange={handleEditFieldChange}
-                    required>
-                </lightning-input>
-                <lightning-textarea
-                    label="Description"
-                    value={editRecord.DescriptionField__c}
-                    data-field="DescriptionField__c"
-                    class="slds-m-top_medium"
-                    onchange={handleEditFieldChange}
-                    style="--lwc-heightTextarea: 100px;"
-                    required>
-                </lightning-textarea>
-                <lightning-input
-                    label="SObject API Name"
-                    value={editRecord.SObjectAPIName__c}
-                    data-field="SObjectAPIName__c"
-                    class="slds-m-top_medium"
-                    onchange={handleEditFieldChange}
-                    required>
-                </lightning-input>
-                <lightning-textarea
-                    label="SOQL Query"
-                    value={editRecord.SOQLField__c}
-                    data-field="SOQLField__c"
-                    class="slds-m-top_medium"
-                    onchange={handleEditFieldChange}
-                     style="--lwc-heightTextarea: 200px;"
-                    required>
-                </lightning-textarea>
-                <div class="slds-m-top_medium">
-                    <template if:true={editValidationError}>
-                        <p class="slds-text-color_error">{editValidationError}</p>
-                    </template>
-                    <template if:true={editIsValidated}>
-                        <p class="slds-text-color_success">SOQL is valid!</p>
-                    </template>
-                </div>
-            </div>
-
-            <footer class="slds-modal__footer">
-                <lightning-button
-                    label="Cancel"
-                    onclick={handleEditCancel}
-                    class="slds-m-right_small">
-                </lightning-button>
-                <lightning-button
-                    label="Validate SOQL"
-                    icon-name="utility:check"
-                    variant="neutral"
-                    onclick={handleEditValidate}
-                    disabled={editIsValidating}
-                    class="slds-m-right_small">
-                </lightning-button>
-                <lightning-button
-                    label="Save"
-                    variant="brand"
-                    onclick={handleEditSave}
-                    disabled={isEditSaveDisabled}>
-                </lightning-button>
-            </footer>
-
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input
+                        label="Name"
+                        value={editRecord.Name}
+                        data-field="Name"
+                        onchange={handleEditFieldChange}
+                        required>
+                    </lightning-input>
+                    <lightning-textarea
+                        label="Description"
+                        value={editRecord.DescriptionField__c}
+                        data-field="DescriptionField__c"
+                        class="slds-m-top_medium"
+                        onchange={handleEditFieldChange}
+                        style="--lwc-heightTextarea: 100px;"
+                        required>
+                    </lightning-textarea>
+                    <lightning-input
+                        label="SObject API Name"
+                        value={editRecord.SObjectAPIName__c}
+                        data-field="SObjectAPIName__c"
+                        class="slds-m-top_medium"
+                        onchange={handleEditFieldChange}
+                        required>
+                    </lightning-input>
+                    <lightning-textarea
+                        label="SOQL Query"
+                        value={editRecord.SOQLField__c}
+                        data-field="SOQLField__c"
+                        class="slds-m-top_medium"
+                        onchange={handleEditFieldChange}
+                        style="--lwc-heightTextarea: 200px;"
+                        required>
+                    </lightning-textarea>
+                    <div class="slds-m-top_medium">
+                        <template if:true={editValidationError}>
+                            <p class="slds-text-color_error">{editValidationError}</p>
+                        </template>
+                        <template if:true={editIsValidated}>
+                            <p class="slds-text-color_success">SOQL is valid!</p>
+                        </template>
+                        <template if:true={showDeleteConfirm}>
+    <div class="slds-box slds-theme_warning slds-m-top_medium">
+        <p class="slds-text-body_regular">
+            Are you sure you want to delete <strong>{selectedRecord.Name}</strong>? This cannot be undone.
+        </p>
+        <div class="slds-m-top_small">
+            <lightning-button
+                label="Yes, Delete"
+                variant="destructive"
+                disabled={isDeleting}
+                onclick={handleDeleteConfirm}
+                class="slds-m-right_small">
+            </lightning-button>
+            <lightning-button
+                label="Cancel"
+                variant="neutral"
+                onclick={handleDeleteCancel}>
+            </lightning-button>
         </div>
-    </section>
-    <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
 </template>
-<!-- Preview Modal -->
-<template if:true={isPreviewOpen}>
-    <section role="dialog" tabindex="-1" aria-modal="true"
-             class="slds-modal slds-fade-in-open">
-        <div class="slds-modal__container" style="width:90%;max-width:60rem;">
-
-            <header class="slds-modal__header">
-                <lightning-button-icon
-                    icon-name="utility:close"
-                    alternative-text="Close"
-                    size="large"
-                    class="slds-modal__close"
-                    onclick={closePreview}>
-                </lightning-button-icon>
-                <h2 class="slds-modal__title">Preview Results (first 5 rows)</h2>
-            </header>
-
-            <div class="slds-modal__content slds-p-around_medium">
-
-                <!-- Loading spinner -->
-                <template if:true={isPreviewLoading}>
-                    <div class="slds-is-relative" style="height:6rem;">
-                        <lightning-spinner alternative-text="Loading preview" size="medium">
-                        </lightning-spinner>
                     </div>
-                </template>
+                </div>
 
-                <!-- Error message -->
-                <template if:true={previewError}>
-                    <p class="slds-text-color_error">{previewError}</p>
-                </template>
-
-                <!-- Results table -->
-                <template if:true={hasPreviewRows}>
-                    <lightning-datatable
-                        key-field="Id"
-                        data={previewRows}
-                        columns={previewColumns}
-                        hide-checkbox-column>
-                    </lightning-datatable>
-                </template>
+                <footer class="slds-modal__footer">
+                    <lightning-button
+                        label="Cancel"
+                        onclick={handleEditCancel}
+                        class="slds-m-right_small">
+                    </lightning-button>
+                    <lightning-button
+                        label="Delete"
+                        icon-name="utility:delete"
+                        variant="destructive-text"
+                        disabled={isDeleteDisabled}
+                        onclick={handleDeleteClick}
+                        class="slds-m-right_small">
+                    </lightning-button>
+                    <lightning-button
+                        label="Validate SOQL"
+                        icon-name="utility:check"
+                        variant="neutral"
+                        onclick={handleEditValidate}
+                        disabled={editIsValidating}
+                        class="slds-m-right_small">
+                    </lightning-button>
+                    <lightning-button
+                        label="Save"
+                        variant="brand"
+                        onclick={handleEditSave}
+                        disabled={isEditSaveDisabled}>
+                    </lightning-button>
+                </footer>
 
             </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
 
-            <footer class="slds-modal__footer">
-                <lightning-button
-                    label="Close"
-                    variant="neutral"
-                    onclick={closePreview}>
-                </lightning-button>
-            </footer>
-
-        </div>
-    </section>
-    <div class="slds-backdrop slds-backdrop_open"></div>
-</template>
 </template>

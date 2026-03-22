@@ -90,5 +90,28 @@ public with sharing class QueryLibraryController {
         
         return Database.countQuery(query);
     }
-
+ 
+    @AuraEnabled
+    public static void trackUsage(Id recordId) {
+        UsefulQuery__c record = [
+            SELECT Id, UsageCount__c 
+            FROM UsefulQuery__c 
+            WHERE Id = :recordId 
+            LIMIT 1
+        ];
+        record.UsageCount__c = (record.UsageCount__c == null ? 0 : record.UsageCount__c) + 1;
+        record.LastUsedDate__c = DateTime.now();
+        update record;
+    }
+    
+    @AuraEnabled
+    public static List<UsefulQuery__c> getMostUsedQueries() {
+        return [
+            SELECT Id, Name, SObjectAPIName__c, DescriptionField__c, UsageCount__c, LastUsedDate__c
+            FROM UsefulQuery__c
+            WHERE UsageCount__c != null
+            ORDER BY UsageCount__c DESC
+            LIMIT 10
+    ];
+    }
 }
