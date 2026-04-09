@@ -4,6 +4,10 @@
 
 The hackathon version of QueryVault proved the core concept: users could create, validate, save, and reuse SOQL queries. The changes below were made to evolve that prototype into something more production-ready for a live Salesforce org.
 
+## Demo Video
+
+[Watch the demo showing the hackathon version compared to the production-ready updates](https://drive.google.com/file/d/1cLvBwlFLBWzDMlDmbzvjboFXg1Ztc9tR/view?usp=sharing)
+
 The main goals of these updates were:
 
 - improve maintainability  
