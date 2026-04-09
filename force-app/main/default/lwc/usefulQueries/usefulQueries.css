@@ -1,0 +1,13 @@
+.card-shell {
+    margin: 1rem;
+}
+
+.card-shell:first-of-type {
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-shell:last-of-type {
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+}

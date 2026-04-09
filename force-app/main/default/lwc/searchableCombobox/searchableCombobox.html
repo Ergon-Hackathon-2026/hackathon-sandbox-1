@@ -1,0 +1,51 @@
+<template>
+    <div class="slds-form-element" onfocusin={handleFocusIn} onfocusout={handleFocusOut}>
+        <div class="slds-form-element__control">
+            <lightning-input
+                type="search"
+                label={label}
+                value={inputValue}
+                placeholder={placeholder}
+                required={required}
+                disabled={disabled}
+                class="date-format-fix"
+                onchange={search}
+                onfocus={showPickListOptions}
+            >
+            </lightning-input>
+
+            <template if:true={hasSearchResults}>
+                <div class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid" role="listbox">
+                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                        <template for:each={searchResults} for:item="searchResult">
+                            <li
+                                key={searchResult.value}
+                                data-value={searchResult.value}
+                                class="slds-listbox__item"
+                                role="presentation"
+                                onmousedown={selectSearchResult}
+                            >
+                                <div class="slds-p-around_small" role="option">
+                                    <div class="slds-grid slds-grid_vertical">
+                                        <div class="slds-text-body_regular slds-truncate" title={searchResult.label}>{searchResult.label}</div>
+
+                                        <template if:true={showDescription}>
+                                            <template if:true={searchResult.description}>
+                                                <div
+                                                    class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small slds-truncate"
+                                                    title={searchResult.description}
+                                                >
+                                                    {searchResult.description}
+                                                </div>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

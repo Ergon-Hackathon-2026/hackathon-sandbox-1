@@ -1,0 +1,158 @@
+<template>
+    <lightning-card title="Bulk Query Upload" icon-name="utility:upload">
+        <div class="slds-p-around_medium">
+            <template if:true={isSubmitting}>
+                <div class="slds-is-relative slds-m-bottom_medium loading-container loading-container_medium">
+                    <lightning-spinner alternative-text="Creating queries" size="medium"></lightning-spinner>
+                </div>
+                <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_medium">
+                    Validating each row and creating any valid queries. This can take a moment for larger uploads.
+                </p>
+            </template>
+
+            <div class="slds-grid slds-wrap slds-grid_vertical-align-center slds-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-1 slds-large-size_8-of-12">
+                    <p class="slds-text-body_regular slds-m-bottom_x-small">
+                        Download the template, fill it in, and paste rows back here for review before we add validation and bulk creation.
+                    </p>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_x-small">
+                        The generated workbook includes the expected column order and a sheet listing the available SObject API names.
+                    </p>
+                    <p class="slds-text-body_small slds-text-color_weak">Name values must be unique across saved queries.</p>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12 slds-text-align_right">
+                    <lightning-button
+                        label="Download Template"
+                        icon-name="utility:download"
+                        onclick={handleDownloadTemplate}
+                        disabled={isSubmitting}
+                    ></lightning-button>
+                </div>
+            </div>
+
+            <div class="slds-box slds-theme_default slds-m-bottom_large">
+                <lightning-radio-group
+                    class="slds-m-bottom_medium"
+                    type="button"
+                    label="Input Method"
+                    options={inputModeOptions}
+                    value={inputMode}
+                    onchange={handleInputModeChange}
+                    disabled={isSubmitting}
+                ></lightning-radio-group>
+
+                <template if:true={isPasteMode}>
+                    <lightning-textarea
+                        label="Paste Rows from Excel"
+                        value={pastedRowsText}
+                        onchange={handlePasteInputChange}
+                        placeholder="Paste tab-delimited rows copied from the Excel template here"
+                        disabled={isSubmitting}
+                    ></lightning-textarea>
+                </template>
+
+                <template if:true={isFileMode}>
+                    <lightning-input
+                        type="file"
+                        label="Upload Completed Template"
+                        accept=".xlsx,.xls"
+                        data-id="template-upload"
+                        onchange={handleFileUploadChange}
+                        disabled={isSubmitting}
+                    ></lightning-input>
+
+                    <template if:true={hasUploadedFile}>
+                        <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                            Uploaded file: {uploadedFileName}
+                        </p>
+                    </template>
+                </template>
+
+                <div class="slds-m-top_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                    <div>
+                        <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small">
+                            Required columns: Name, Description, SObject API Name, SOQL.
+                        </p>
+                        <p class="slds-text-body_small"><strong>{templateHint}</strong></p>
+                    </div>
+                    <div>
+                        <lightning-button
+                            label="Clear"
+                            icon-name="utility:clear"
+                            onclick={handleClearPreview}
+                            class="slds-m-right_small"
+                            disabled={isSubmitting}
+                        ></lightning-button>
+                        <template if:true={isPasteMode}>
+                            <lightning-button
+                                label="Parse Rows"
+                                variant="brand-outline"
+                                icon-name="utility:table"
+                                onclick={handleParsePastedRows}
+                                class="slds-m-right_small"
+                                disabled={isSubmitting}
+                            ></lightning-button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
+                <div>
+                    <p class="slds-text-title_bold">Parsed Rows</p>
+                    <p class="slds-text-body_small slds-text-color_weak">{previewCountLabel}</p>
+                </div>
+                <div class="slds-text-align_right">
+                    <p class="slds-text-body_small slds-text-color_weak">Rows needing attention: {invalidRowCount}</p>
+                    <template if:true={warningRowCount}>
+                        <p class="slds-text-body_small slds-text-color_weak">Rows with ignored extra columns: {warningRowCount}</p>
+                    </template>
+                </div>
+            </div>
+
+            <template if:true={hasPreviewRows}>
+                <div class="table-wrapper table-wrapper_scrollable">
+                    <lightning-datatable
+                        class="table slds-m-around_medium slds-max-medium-table_stacked"
+                        key-field="id"
+                        data={previewRows}
+                        columns={columns}
+                        column-widths-mode="auto"
+                        min-column-width="160"
+                        max-column-width="420"
+                        show-row-number-column
+                        errors={previewTableErrors}
+                        selected-rows={selectedRowIds}
+                        onrowselection={handleRowSelection}
+                        onrowaction={handleRowAction}
+                    ></lightning-datatable>
+                </div>
+
+                <div class="slds-m-top_medium slds-grid slds-grid_align-end">
+                    <lightning-button
+                        label="Remove Selected"
+                        icon-name="utility:delete"
+                        onclick={handleRemoveSelectedRows}
+                        class="slds-m-right_small"
+                        disabled={isRemoveSelectedDisabled}
+                    ></lightning-button>
+                    <lightning-button
+                        label="Create Queries"
+                        variant="brand"
+                        icon-name="utility:upload"
+                        onclick={handleSubmitRows}
+                        disabled={isSubmitDisabled}
+                    ></lightning-button>
+                </div>
+            </template>
+
+            <template if:false={hasPreviewRows}>
+                <c-no-data-found
+                    title="No bulk rows parsed yet."
+                    subtitle="Paste rows from the generated template to preview them here."
+                    size="small"
+                ></c-no-data-found>
+            </template>
+        </div>
+    </lightning-card>
+</template>

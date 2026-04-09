@@ -1,0 +1,14 @@
+.code-container {
+    overflow-x: auto;
+}
+
+.language-container {
+    margin: 0;
+    border-radius: 0.25rem;
+    overflow: auto;
+}
+
+.language-container code {
+    display: block;
+    white-space: pre;
+}

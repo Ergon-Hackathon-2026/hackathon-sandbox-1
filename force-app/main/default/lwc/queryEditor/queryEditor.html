@@ -1,81 +1,81 @@
 <template>
     <lightning-card title="Query Creator" icon-name="utility:edit">
         <div class="slds-p-around_medium">
-
             <lightning-input
                 label="Name"
                 value={name}
                 data-field="name"
                 onchange={handleChange}
-                required>
+                class="date-format-fix slds-m-bottom_medium"
+                required
+            >
             </lightning-input>
 
             <lightning-input
                 label="Description"
                 value={description}
                 data-field="description"
-                class="slds-m-top_medium"
                 onchange={handleChange}
-                required>
+                class="date-format-fix slds-m-bottom_medium"
+                required
+            >
             </lightning-input>
 
-            <lightning-combobox
-                label="SObject API Name"
-                value={sObjectApiName}
-                options={sObjectOptions}
-                data-field="sObjectApiName"
-                onchange={handleSObjectChange}
-                placeholder="Select an object..."
-                disabled={isLoadingObjects}
-                required>
-            </lightning-combobox>
+            <div class="slds-m-bottom_medium">
+                <c-searchable-combobox
+                    label="SObject API Name"
+                    value={sObjectApiName}
+                    picklist-options={sObjectOptions}
+                    placeholder="Search by object label or API name"
+                    required
+                    show-description
+                    onoptionselect={handleSObjectChange}
+                >
+                </c-searchable-combobox>
+            </div>
 
-            <lightning-input
-                label="SOQL"
-                value={soql}
-                data-field="soql"
-                class="slds-m-top_medium"
-                onchange={handleChange}
-                required>
-            </lightning-input>
+            <div class="slds-m-bottom_medium">
+                <div class={soqlFieldContainerClass}>
+                    <lightning-textarea
+                        label="SOQL"
+                        aria-setsize="10"
+                        value={soql}
+                        data-field="soql"
+                        onchange={handleChange}
+                        required
+                    >
+                    </lightning-textarea>
 
-            <!-- Validation status -->
-            <div class="slds-m-top_medium">
-                <template if:true={validationError}>
-                    <p class="slds-text-color_error">{validationError}</p>
-                </template>
-                <template if:true={isValidated}>
-                    <p class="slds-text-color_success">SOQL is valid!</p>
-                </template>
+                    <template if:true={isValidated}>
+                        <div class="slds-form-element__help slds-text-color_success">SOQL is valid!</div>
+                    </template>
+                </div>
             </div>
 
             <!-- Buttons -->
-            <div class="slds-m-top_medium slds-grid slds-grid_align-end slds-gutters_small">
-                <lightning-button
-                    label="Validate SOQL"
-                    onclick={handleValidate}
-                    disabled={isValidating}
-                    class="slds-m-right_small">
-                </lightning-button>
-
-                <div class="slds-grid slds-grid_align-end slds-gutters_medium">
-            <div class="slds-col slds-grow-none">
-                <lightning-button
-                    label="Clear Form"
-                    icon-name="utility:clear"
-                    onclick={resetForm}>
-                </lightning-button>
+            <div class="slds-m-top_large slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                <div>
+                    <lightning-button label="Clear Form" icon-name="utility:clear" onclick={resetForm}> </lightning-button>
+                </div>
+                <div>
+                    <lightning-button
+                        label="Validate SOQL"
+                        icon-name="utility:check"
+                        onclick={handleValidate}
+                        disabled={isValidating}
+                        class="slds-m-right_small"
+                    >
+                    </lightning-button>
+                    <lightning-button
+                        label="Save Query"
+                        icon-name="utility:save"
+                        variant="brand"
+                        onclick={handleSave}
+                        disabled={isSaveDisabled}
+                    >
+                    </lightning-button>
+                </div>
             </div>
-            <div class="slds-col slds-grow-none">
-                <lightning-button
-                    label="Save Query"
-                    variant="brand"
-                    onclick={handleSave}
-                    disabled={isSaveDisabled}>
-                </lightning-button>
-            </div>
-            </div>
-            </div>
-            </div>
+        </div>
     </lightning-card>
 </template>

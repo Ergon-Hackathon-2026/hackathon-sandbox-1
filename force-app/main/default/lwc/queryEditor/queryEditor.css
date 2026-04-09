@@ -1,0 +1,10 @@
+.soql-field-container_valid lightning-textarea {
+    --slds-c-textarea-color-background: #f4fff6;
+    --slds-c-textarea-color-border: #2e844a;
+    --slds-c-textarea-color-border-focus: #2e844a;
+    --slds-c-textarea-shadow-focus: 0 0 3px #2e844a;
+}
+
+.soql-field-container_valid .slds-form-element__help {
+    color: #2e844a;
+}

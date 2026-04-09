@@ -1,0 +1,26 @@
+<template>
+    <lightning-modal-header label={title}></lightning-modal-header>
+
+    <lightning-modal-body>
+        <div class="slds-text-align_center slds-var-p-vertical_medium">
+            <div class="slds-var-m-bottom_medium">
+                <lightning-icon icon-name="utility:warning" alternative-text="Warning" size="large"
+                    class="warning-icon">
+                </lightning-icon>
+            </div>
+
+            <p class="slds-text-heading_small slds-var-m-bottom_small">
+                {message}
+            </p>
+        </div>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <lightning-button label="Cancel" onclick={handleCancel} disabled={isProcessing}>
+        </lightning-button>
+
+        <lightning-button variant={buttonVariant} label={buttonLabel} icon-name={buttonIcon}
+            onclick={handleConfirm} disabled={isProcessing} class="slds-var-m-left_x-small">
+        </lightning-button>
+    </lightning-modal-footer>
+</template>

@@ -1,0 +1,117 @@
+.soql-field-container_valid lightning-textarea {
+    --slds-c-textarea-color-background: #f4fff6;
+    --slds-c-textarea-color-border: #2e844a;
+    --slds-c-textarea-color-border-focus: #2e844a;
+    --slds-c-textarea-shadow-focus: 0 0 3px #2e844a;
+}
+
+.textarea {
+    display: block;
+}
+
+.textarea_medium {
+    --lwc-heightTextarea: 100px;
+}
+
+.textarea_large {
+    --lwc-heightTextarea: 200px;
+}
+
+.loading-container {
+    display: block;
+}
+
+.loading-container_small {
+    height: 3rem;
+}
+
+.loading-container_medium {
+    height: 4rem;
+}
+
+.loading-container_large {
+    height: 6rem;
+}
+
+.soql-field-container_valid .slds-form-element__help {
+    color: #2e844a;
+}
+
+.group-card {
+    margin-bottom: 1rem;
+    border: 1px solid #d8dde6;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(24, 24, 24, 0.06);
+    overflow: hidden;
+}
+
+.group-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    background: linear-gradient(180deg, #f8fbff 0%, #f3f8fc 100%);
+    border-bottom: 1px solid #e5edf3;
+}
+
+.group-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #032d60;
+    line-height: 1.2;
+}
+
+.group-card__count {
+    flex-shrink: 0;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: #eaf5fe;
+    color: #014486;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.group-card__table {
+    padding: 0.25rem;
+    background: #fff;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper_grouped {
+    max-height: 28rem;
+    overflow-y: auto;
+}
+
+.table-wrapper_preview {
+    max-width: 100%;
+}
+
+.table {
+    width: 100%;
+    min-width: 1100px;
+}
+
+@media (max-width: 900px) {
+    .table {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 600px) {
+    .group-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table {
+        min-width: 760px;
+    }
+}

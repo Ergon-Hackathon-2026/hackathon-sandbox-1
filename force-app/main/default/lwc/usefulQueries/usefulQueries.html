@@ -1,6 +1,23 @@
 <template>
-    <!-- Here is where you include any markup for your lwc. -->
     <div class="slds-var-p-around_medium slds-border_bottom">
         <p class="slds-text-body_small slds-text-color_weak">Create, validate, and reuse trusted SOQL queries in one centralized library.</p>
+    </div>
+    <div class="card-shell">
+        <lightning-tabset variant="scoped">
+            <lightning-tab label="Single Query" value="single-query">
+                <c-query-editor s-object-options={objectOptions} onquerychange={handleQueryChange}></c-query-editor>
+            </lightning-tab>
+            <lightning-tab label="Bulk Upload" value="bulk-upload">
+                <c-bulk-query-editor s-object-options={objectOptions} onquerychange={handleQueryChange}></c-bulk-query-editor>
+            </lightning-tab>
+        </lightning-tabset>
+    </div>
+    <div class="card-shell">
+        <c-query-library
+            records={queryRecords}
+            available-s-object-options={objectOptions}
+            is-loading={loading}
+            onquerychange={handleQueryChange}
+        ></c-query-library>
     </div>
 </template>
